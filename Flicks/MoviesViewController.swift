@@ -37,7 +37,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
                                                                         if let data = dataOrNil {
                                                                             if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
                                                                                 data, options:[]) as? NSDictionary {
-                                                                                print("response: \(responseDictionary)")
                                                                                 self.movies = responseDictionary["results"] as! [NSDictionary]
                                                                                 self.tableView.reloadData()
                                                                             }
@@ -73,6 +72,16 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         cell.titleLabel.text = title
         cell.overviewLabel.text = overview
         return cell
+    }
+
+    //     MARK: - Navigation
+    //     In a storyboard-based application, you will often want to do a little preparation before navigation
+    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+        let cell = sender as! UITableViewCell
+        let indexPath = tableView.indexPathForCell(cell)
+        let movie = movies![indexPath!.row]
+        let detailViewController = segue.destinationViewController as! DetailViewController
+        detailViewController.movie = movie
     }
 
 
