@@ -120,7 +120,13 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
 
         cell.titleLabel.text = title
         cell.overviewLabel.text = overview
+
+        cell.accessoryType = UITableViewCellAccessoryType.None
         return cell
+    }
+
+    func tableView(tableView: UITableView, didSelectRowAtIndexPath indexPath: NSIndexPath) {
+        tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
 
     @IBAction func onViewSwitch(sender: AnyObject) {
