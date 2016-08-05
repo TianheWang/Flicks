@@ -8,6 +8,7 @@
 
 import UIKit
 import AFNetworking
+import MBProgressHUD
 
 class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
 
@@ -33,6 +34,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             delegateQueue: NSOperationQueue.mainQueue()
         )
 
+        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
         let task: NSURLSessionDataTask = session.dataTaskWithRequest(request,
                                                                      completionHandler: { (dataOrNil, response, error) in
                                                                         if let data = dataOrNil {
@@ -42,9 +44,41 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
                                                                                 self.tableView.reloadData()
                                                                             }
                                                                         }
+                                                                        MBProgressHUD.hideHUDForView(self.view, animated: true)
         })
         task.resume()
+
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
+        tableView.insertSubview(refreshControl, atIndex: 0)
         super.viewDidLoad()
+    }
+
+    func refreshControlAction(refreshControl: UIRefreshControl) {
+        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
+        let url = NSURL(string: "https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
+        let request = NSURLRequest(
+            URL: url!,
+            cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData,
+            timeoutInterval: 10)
+
+        let session = NSURLSession(
+            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
+            delegate: nil,
+            delegateQueue: NSOperationQueue.mainQueue()
+        )
+        let task: NSURLSessionDataTask = session.dataTaskWithRequest(request,
+                                                                     completionHandler: { (dataOrNil, response, error) in
+                                                                        if let data = dataOrNil {
+                                                                            if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
+                                                                                data, options:[]) as? NSDictionary {
+                                                                                self.movies = responseDictionary["results"] as! [NSDictionary]
+                                                                                self.tableView.reloadData()
+                                                                            }
+                                                                        }
+                                                                        refreshControl.endRefreshing()
+        })
+        task.resume()
     }
 
     override func didReceiveMemoryWarning() {
@@ -86,6 +120,4 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         let detailViewController = segue.destinationViewController as! DetailViewController
         detailViewController.movie = movie
     }
-
-
 }
