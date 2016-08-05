@@ -10,9 +10,12 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate {
 
     @IBOutlet weak var tableView: UITableView!
+    @IBOutlet weak var gridView: UICollectionView!
+    @IBOutlet weak var viewSwitch: UISegmentedControl!
+
 
     var movies: [NSDictionary]?
     var endpoint: String!
@@ -20,6 +23,8 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     override func viewDidLoad() {
         tableView.dataSource = self
         tableView.delegate = self
+        gridView.dataSource = self
+        gridView.delegate = self
 
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         let url = NSURL(string: "https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
@@ -38,10 +43,16 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         let task: NSURLSessionDataTask = session.dataTaskWithRequest(request,
                                                                      completionHandler: { (dataOrNil, response, error) in
                                                                         if let data = dataOrNil {
+                                                                            if self.viewSwitch.selectedSegmentIndex == 0 {
+                                                                                self.tableView.hidden = false
+                                                                            } else {
+                                                                                self.gridView.hidden = false
+                                                                            }
                                                                             if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
                                                                                 data, options:[]) as? NSDictionary {
                                                                                 self.movies = responseDictionary["results"] as! [NSDictionary]
                                                                                 self.tableView.reloadData()
+                                                                                self.gridView.reloadData()
                                                                             }
                                                                         }
                                                                         MBProgressHUD.hideHUDForView(self.view, animated: true)
@@ -74,6 +85,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
                                                                                 data, options:[]) as? NSDictionary {
                                                                                 self.movies = responseDictionary["results"] as! [NSDictionary]
                                                                                 self.tableView.reloadData()
+                                                                                self.gridView.reloadData()
                                                                             }
                                                                         }
                                                                         refreshControl.endRefreshing()
@@ -99,7 +111,7 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         let movie = movies![indexPath.row]
         let title = movie["title"] as! String
         let overview = movie["overview"] as! String
-        let baseUrl = "https://image.tmdb.org/t/p/w342"
+        let baseUrl = "https://image.tmdb.org/t/p/w500"
 
         if let posterPath = movie["poster_path"] as? String {
             let imageUrl = NSURL (string: baseUrl + posterPath)
@@ -108,6 +120,37 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
 
         cell.titleLabel.text = title
         cell.overviewLabel.text = overview
+        return cell
+    }
+
+    @IBAction func onViewSwitch(sender: AnyObject) {
+        print(viewSwitch.selectedSegmentIndex)
+        if viewSwitch.selectedSegmentIndex == 0 {
+            tableView.hidden = false
+            gridView.hidden = true
+        } else {
+            tableView.hidden = true
+            gridView.hidden = false
+        }
+    }
+
+    func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        if let movies = movies {
+            return movies.count
+        } else {
+            return 0
+        }
+    }
+
+    // The cell that is returned must be retrieved from a call to -dequeueReusableCellWithReuseIdentifier:forIndexPath:
+    func collectionView(collectionView: UICollectionView, cellForItemAtIndexPath indexPath: NSIndexPath) -> UICollectionViewCell {
+        let cell = gridView.dequeueReusableCellWithReuseIdentifier("GridCell", forIndexPath: indexPath) as! GridViewCell
+        let movie = movies![indexPath.row]
+        let baseUrl = "https://image.tmdb.org/t/p/w500"
+        if let posterPath = movie["poster_path"] as? String {
+            let imageUrl = NSURL (string: baseUrl + posterPath)
+            cell.posterView.setImageWithURL(imageUrl!)
+        }
         return cell
     }
 
