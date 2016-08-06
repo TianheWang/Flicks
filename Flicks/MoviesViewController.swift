@@ -15,82 +15,28 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var gridView: UICollectionView!
     @IBOutlet weak var viewSwitch: UISegmentedControl!
+    @IBOutlet weak var errorView: UIView!
 
 
     var movies: [NSDictionary]?
     var endpoint: String!
+    var refreshControl: UIRefreshControl?
 
     override func viewDidLoad() {
         tableView.dataSource = self
         tableView.delegate = self
         gridView.dataSource = self
         gridView.delegate = self
-
-        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        let url = NSURL(string: "https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
-        let request = NSURLRequest(
-            URL: url!,
-            cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData,
-            timeoutInterval: 10)
-
-        let session = NSURLSession(
-            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
-            delegate: nil,
-            delegateQueue: NSOperationQueue.mainQueue()
-        )
-
-        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
-        let task: NSURLSessionDataTask = session.dataTaskWithRequest(request,
-                                                                     completionHandler: { (dataOrNil, response, error) in
-                                                                        if let data = dataOrNil {
-                                                                            if self.viewSwitch.selectedSegmentIndex == 0 {
-                                                                                self.tableView.hidden = false
-                                                                            } else {
-                                                                                self.gridView.hidden = false
-                                                                            }
-                                                                            if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
-                                                                                data, options:[]) as? NSDictionary {
-                                                                                self.movies = responseDictionary["results"] as! [NSDictionary]
-                                                                                self.tableView.reloadData()
-                                                                                self.gridView.reloadData()
-                                                                            }
-                                                                        }
-                                                                        MBProgressHUD.hideHUDForView(self.view, animated: true)
-        })
-        task.resume()
-
-        let refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
-        tableView.insertSubview(refreshControl, atIndex: 0)
+        
+        loadMovieData()
+        refreshControl = UIRefreshControl()
+        refreshControl!.addTarget(self, action: #selector(refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
+        tableView.insertSubview(refreshControl!, atIndex: 0)
         super.viewDidLoad()
     }
 
     func refreshControlAction(refreshControl: UIRefreshControl) {
-        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-        let url = NSURL(string: "https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
-        let request = NSURLRequest(
-            URL: url!,
-            cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData,
-            timeoutInterval: 10)
-
-        let session = NSURLSession(
-            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
-            delegate: nil,
-            delegateQueue: NSOperationQueue.mainQueue()
-        )
-        let task: NSURLSessionDataTask = session.dataTaskWithRequest(request,
-                                                                     completionHandler: { (dataOrNil, response, error) in
-                                                                        if let data = dataOrNil {
-                                                                            if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
-                                                                                data, options:[]) as? NSDictionary {
-                                                                                self.movies = responseDictionary["results"] as! [NSDictionary]
-                                                                                self.tableView.reloadData()
-                                                                                self.gridView.reloadData()
-                                                                            }
-                                                                        }
-                                                                        refreshControl.endRefreshing()
-        })
-        task.resume()
+        loadMovieData()
     }
 
     override func didReceiveMemoryWarning() {
@@ -168,5 +114,48 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         let movie = movies![indexPath!.row]
         let detailViewController = segue.destinationViewController as! DetailViewController
         detailViewController.movie = movie
+    }
+    
+    private func loadMovieData() {
+        let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
+        let url = NSURL(string: "https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
+        let request = NSURLRequest(
+            URL: url!,
+            cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData,
+            timeoutInterval: 10)
+        
+        let session = NSURLSession(
+            configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
+            delegate: nil,
+            delegateQueue: NSOperationQueue.mainQueue()
+        )
+        
+        MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        let task: NSURLSessionDataTask = session.dataTaskWithRequest(request,
+                                                                     completionHandler: { (dataOrNil, response, error) in
+                                                                        if let data = dataOrNil {
+                                                                            if self.viewSwitch.selectedSegmentIndex == 0 {
+                                                                                self.tableView.hidden = false
+                                                                                self.gridView.hidden = true
+                                                                            } else {
+                                                                                self.gridView.hidden = false
+                                                                                self.tableView.hidden = true
+                                                                            }
+                                                                            self.errorView.hidden = true
+                                                                            if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
+                                                                                data, options:[]) as? NSDictionary {
+                                                                                self.movies = responseDictionary["results"] as! [NSDictionary]
+                                                                                self.tableView.reloadData()
+                                                                                self.gridView.reloadData()
+                                                                            }
+                                                                        } else {
+                                                                            self.tableView.hidden = true
+                                                                            self.gridView.hidden = true
+                                                                            self.errorView.hidden = false
+                                                                        }
+                                                                        self.refreshControl!.endRefreshing()
+                                                                        MBProgressHUD.hideHUDForView(self.view, animated: true)
+        })
+        task.resume()
     }
 }

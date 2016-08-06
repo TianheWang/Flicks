@@ -13,6 +13,20 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
+                            <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" id="g5b-j8-QaV" userLabel="Error View">
+                                <rect key="frame" x="40" y="220" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Network Error" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="uVO-RN-VDc">
+                                        <rect key="frame" x="27" y="39" width="186" height="33"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="20"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="Z2o-lW-8ME">
                                 <rect key="frame" x="0.0" y="64" width="320" height="29"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -24,7 +38,7 @@
                                     <action selector="onViewSwitch:" destination="BYZ-38-t0r" eventType="valueChanged" id="As5-ka-QmN"/>
                                 </connections>
                             </segmentedControl>
-                            <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="117" sectionHeaderHeight="28" sectionFooterHeight="28" id="j32-ko-KkX">
+                            <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="117" sectionHeaderHeight="28" sectionFooterHeight="28" id="j32-ko-KkX">
                                 <rect key="frame" x="0.0" y="92" width="320" height="476"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -100,6 +114,7 @@
                     </view>
                     <navigationItem key="navigationItem" title="Movies" id="lWa-Ap-6HM"/>
                     <connections>
+                        <outlet property="errorView" destination="g5b-j8-QaV" id="hkf-1N-hA9"/>
                         <outlet property="gridView" destination="rzO-6Y-n5R" id="WP4-9U-jcl"/>
                         <outlet property="tableView" destination="j32-ko-KkX" id="jEy-W6-L3J"/>
                         <outlet property="viewSwitch" destination="Z2o-lW-8ME" id="YUd-ws-xU0"/>
