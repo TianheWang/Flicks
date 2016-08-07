@@ -27,17 +27,6 @@
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                             </view>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" id="Z2o-lW-8ME">
-                                <rect key="frame" x="0.0" y="64" width="320" height="29"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <segments>
-                                    <segment title="List"/>
-                                    <segment title="Grid"/>
-                                </segments>
-                                <connections>
-                                    <action selector="onViewSwitch:" destination="BYZ-38-t0r" eventType="valueChanged" id="As5-ka-QmN"/>
-                                </connections>
-                            </segmentedControl>
                             <tableView hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="117" sectionHeaderHeight="28" sectionFooterHeight="28" id="j32-ko-KkX">
                                 <rect key="frame" x="0.0" y="92" width="320" height="476"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -112,12 +101,22 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                     </view>
-                    <navigationItem key="navigationItem" title="Movies" id="lWa-Ap-6HM"/>
+                    <navigationItem key="navigationItem" title="Movies" id="lWa-Ap-6HM">
+                        <barButtonItem key="leftBarButtonItem" title="Item" style="plain" id="MTB-DJ-Ezh">
+                            <button key="customView" opaque="NO" contentMode="scaleAspectFit" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="ODS-2M-dn7">
+                                <rect key="frame" x="16" y="12" width="20" height="20"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <connections>
+                                    <action selector="onViewSwitchButtonClicked:" destination="BYZ-38-t0r" eventType="touchUpInside" id="e1d-UN-hjU"/>
+                                </connections>
+                            </button>
+                        </barButtonItem>
+                    </navigationItem>
                     <connections>
                         <outlet property="errorView" destination="g5b-j8-QaV" id="hkf-1N-hA9"/>
                         <outlet property="gridView" destination="rzO-6Y-n5R" id="WP4-9U-jcl"/>
                         <outlet property="tableView" destination="j32-ko-KkX" id="jEy-W6-L3J"/>
-                        <outlet property="viewSwitch" destination="Z2o-lW-8ME" id="YUd-ws-xU0"/>
+                        <outlet property="viewSwitchButton" destination="ODS-2M-dn7" id="cNu-yF-RBY"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

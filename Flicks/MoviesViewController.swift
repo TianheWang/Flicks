@@ -14,24 +14,36 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
 
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var gridView: UICollectionView!
-    @IBOutlet weak var viewSwitch: UISegmentedControl!
+
     @IBOutlet weak var errorView: UIView!
 
+    @IBOutlet weak var viewSwitchButton: UIButton!
 
     var movies: [NSDictionary]?
     var endpoint: String!
     var refreshControl: UIRefreshControl?
+    var viewState: Int = 0// 0 for list; 1 for grid
 
     override func viewDidLoad() {
         tableView.dataSource = self
         tableView.delegate = self
         gridView.dataSource = self
         gridView.delegate = self
-        
+
         loadMovieData()
         refreshControl = UIRefreshControl()
         refreshControl!.addTarget(self, action: #selector(refreshControlAction(_:)), forControlEvents: UIControlEvents.ValueChanged)
         tableView.insertSubview(refreshControl!, atIndex: 0)
+
+        if viewState == 0 {
+            viewSwitchButton.setImage(UIImage(named: "list_view_icon"), forState: UIControlState.Normal)
+            self.tableView.hidden = false
+            self.gridView.hidden = true
+        } else {
+            viewSwitchButton.setImage(UIImage(named: "grid_view_icon"), forState: UIControlState.Normal)
+            self.gridView.hidden = false
+            self.tableView.hidden = true
+        }
         super.viewDidLoad()
     }
 
@@ -75,17 +87,6 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         tableView.deselectRowAtIndexPath(indexPath, animated: true)
     }
 
-    @IBAction func onViewSwitch(sender: AnyObject) {
-        print(viewSwitch.selectedSegmentIndex)
-        if viewSwitch.selectedSegmentIndex == 0 {
-            tableView.hidden = false
-            gridView.hidden = true
-        } else {
-            tableView.hidden = true
-            gridView.hidden = false
-        }
-    }
-
     func collectionView(collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let movies = movies {
             return movies.count
@@ -115,7 +116,22 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
         let detailViewController = segue.destinationViewController as! DetailViewController
         detailViewController.movie = movie
     }
-    
+
+
+    @IBAction func onViewSwitchButtonClicked(sender: AnyObject) {
+        if (viewState == 1) {
+            viewState = 0
+            viewSwitchButton.setImage(UIImage(named: "list_view_icon"), forState: UIControlState.Normal)
+            self.tableView.hidden = false
+            self.gridView.hidden = true
+        } else {
+            viewState = 1
+            viewSwitchButton.setImage(UIImage(named: "grid_view_icon"), forState: UIControlState.Normal)
+            self.tableView.hidden = true
+            self.gridView.hidden = false
+        }
+    }
+
     private func loadMovieData() {
         let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
         let url = NSURL(string: "https://api.themoviedb.org/3/movie/\(endpoint)?api_key=\(apiKey)")
@@ -123,24 +139,17 @@ class MoviesViewController: UIViewController, UITableViewDataSource, UITableView
             URL: url!,
             cachePolicy: NSURLRequestCachePolicy.ReloadIgnoringLocalCacheData,
             timeoutInterval: 10)
-        
+
         let session = NSURLSession(
             configuration: NSURLSessionConfiguration.defaultSessionConfiguration(),
             delegate: nil,
             delegateQueue: NSOperationQueue.mainQueue()
         )
-        
+
         MBProgressHUD.showHUDAddedTo(self.view, animated: true)
         let task: NSURLSessionDataTask = session.dataTaskWithRequest(request,
                                                                      completionHandler: { (dataOrNil, response, error) in
                                                                         if let data = dataOrNil {
-                                                                            if self.viewSwitch.selectedSegmentIndex == 0 {
-                                                                                self.tableView.hidden = false
-                                                                                self.gridView.hidden = true
-                                                                            } else {
-                                                                                self.gridView.hidden = false
-                                                                                self.tableView.hidden = true
-                                                                            }
                                                                             self.errorView.hidden = true
                                                                             if let responseDictionary = try! NSJSONSerialization.JSONObjectWithData(
                                                                                 data, options:[]) as? NSDictionary {
